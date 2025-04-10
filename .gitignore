@@ -1,0 +1,91 @@
+# Fichiers systèmes et des éditeurs
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.env
+
+# Dossiers virtuels Python
+venv/
+env/
+.venv/
+.env/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Fichiers de log
+*.log
+logs/
+spark-warehouse/
+
+# Dossiers et fichiers Node.js/React
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+.pnp/
+.pnp.js
+
+# Fichiers de build et environnement React
+frontend/build/
+frontend/.env
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+
+# Fichiers temporaires Spark et Hadoop
+metastore_db/
+derby.log
+.ipynb_checkpoints/
+checkpoint/
+.checkpoints/
+.checkpoint/
+*.parquet
+*.orc
+*.csv
+*.txt.crc
+_SUCCESS
+
+# Dossiers de données
+data/
+/tmp/
+
+# Fichiers Docker créés dynamiquement
+spark-checkpoints/
+hdfs-data/
+kafka-data/
+
+# Fichiers d'historique BASH
+.bash_history
+.python_history
+
+# Fichiers de configuration spécifiques à chaque développeur
+.streamlit/
+config.local.yaml
+
+# Fichiers de sortie
+output/
+results/
+*.xlsx
+*.xls 

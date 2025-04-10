@@ -1,0 +1,140 @@
+.alert-list {
+  padding: 1rem;
+  background-color: #1a1a1a;
+  border-radius: 5px;
+  margin-bottom: 1rem;
+}
+
+.alert-list h2 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid #444;
+  padding-bottom: 0.5rem;
+  color: #ff5050;
+}
+
+.alert-count {
+  background-color: rgba(255, 80, 80, 0.1);
+  padding: 0.5rem;
+  margin-bottom: 1rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  color: #ff8080;
+  text-align: center;
+}
+
+.count {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #ff5050;
+}
+
+.alert-list ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.alert-item {
+  margin-bottom: 1rem;
+  padding: 0.8rem;
+  background-color: #2a1a1a;
+  border-radius: 4px;
+  border-left: 3px solid #ff5050;
+  transition: all 0.2s ease;
+}
+
+.alert-item:hover {
+  transform: translateX(3px);
+  box-shadow: 0 0 10px rgba(255, 80, 80, 0.3);
+}
+
+.alert-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+}
+
+.alert-id {
+  color: #aaa;
+  font-size: 0.9rem;
+}
+
+.danger-level {
+  background-color: #ff5050;
+  color: #000;
+  padding: 0.2rem 0.5rem;
+  border-radius: 3px;
+  font-size: 0.75rem;
+  letter-spacing: 1px;
+}
+
+.alert-type {
+  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+  color: #ff8c00;
+  text-transform: capitalize;
+}
+
+.alert-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.alert-details .detail {
+  display: flex;
+  justify-content: space-between;
+}
+
+.alert-details .label {
+  color: #999;
+}
+
+.alert-details .value {
+  color: #fff;
+}
+
+.alert-details .value.danger {
+  color: #ff5050;
+  font-weight: bold;
+}
+
+.no-alerts {
+  text-align: center;
+  padding: 1rem;
+  color: #aaa;
+  font-style: italic;
+}
+
+.loading, .error-message {
+  /* Styles similaires à ObjectList.css */
+  text-align: center;
+  padding: 1rem;
+  color: #aaa;
+  font-style: italic;
+}
+
+.error-message {
+  background-color: rgba(255, 50, 50, 0.1);
+  border-left: 3px solid #ff3232;
+  padding: 1rem;
+  margin-top: 0.5rem;
+  border-radius: 4px;
+  text-align: left;
+  font-style: normal;
+}
+
+.error-message p {
+  margin: 0;
+  margin-bottom: 0.5rem;
+  color: #ff5050;
+}
+
+.error-details {
+  font-family: monospace;
+  font-size: 0.9rem;
+  word-break: break-all;
+  color: #aaa !important;
+} 
