@@ -2,7 +2,7 @@ import json
 import random
 import time
 from datetime import datetime
-from kafka import KafkaProducer
+from confluent_kafka import Producer
 import os
 import logging
 
@@ -11,78 +11,118 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Configuration Kafka
-KAFKA_BROKER = os.getenv('KAFKA_BROKER', 'kafka:29092')
-TOPIC = 'space_data'
+KAFKA_BROKER = os.environ.get('KAFKA_BROKER', 'kafka:29092')
+KAFKA_TOPIC = 'space_data'
 
 logger.info(f"Utilisation du broker Kafka: {KAFKA_BROKER}")
 
-# Types d'objets célestes
-OBJECT_TYPES = ['astéroïde', 'comète', 'météorite', 'débris spatial']
+# Nombre d'objets célestes à générer par intervalle
+MIN_OBJECTS = 2
+MAX_OBJECTS = 5
 
-def generate_space_object():
-    """Génère un objet céleste aléatoire."""
-    return {
-        "id": f"space_{random.randint(10000, 99999)}",
-        "timestamp": int(datetime.now().timestamp()),
-        "position": {
-            "x": random.uniform(-1000, 1000),
-            "y": random.uniform(-1000, 1000),
-            "z": random.uniform(-1000, 1000)
-        },
-        "vitesse": random.uniform(5, 35),  # km/s
-        "taille": random.uniform(1, 30),   # mètres
-        "type": random.choice(OBJECT_TYPES)
-    }
+# Intervalle de temps entre les générations d'objets (secondes)
+GENERATION_INTERVAL = 2
+
+# Probabilité qu'un objet soit dangereux (vitesse > 25 km/s et taille > 10m)
+DANGEROUS_PROBABILITY = 0.3
 
 def create_producer():
-    """Crée un producteur Kafka avec gestion des erreurs."""
-    max_retries = 10
-    retry_count = 0
-    while retry_count < max_retries:
-        try:
-            producer = KafkaProducer(
-                bootstrap_servers=KAFKA_BROKER,
-                value_serializer=lambda v: json.dumps(v).encode('utf-8'),
-                retries=3,
-                request_timeout_ms=30000
-            )
-            return producer
-        except Exception as e:
-            retry_count += 1
-            logger.error(f"Tentative {retry_count}/{max_retries} échouée: {str(e)}")
-            if retry_count < max_retries:
-                time.sleep(5)  # Attendre 5 secondes avant de réessayer
-            else:
-                raise
+    """Crée un producteur Kafka."""
+    conf = {
+        'bootstrap.servers': KAFKA_BROKER,
+        'client.id': 'space-data-producer'
+    }
+    return Producer(conf)
 
-def main():
-    logger.info(f"Tentative de connexion à Kafka sur {KAFKA_BROKER}...")
+def generate_object():
+    """Génère un objet céleste aléatoire."""
+    # Identifiant unique
+    obj_id = f"space_{int(time.time())}_{random.randint(1000, 9999)}"
+    
+    # Timestamp actuel
+    timestamp = int(datetime.now().timestamp())
+    
+    # Position dans l'espace
+    position = {
+        "x": random.uniform(-1000, 1000),  # en unités arbitraires
+        "y": random.uniform(-1000, 1000),
+        "z": random.uniform(-1000, 1000)
+    }
+    
+    # Vitesse (km/s)
+    if random.random() < DANGEROUS_PROBABILITY:
+        # Objet potentiellement dangereux: vitesse élevée
+        vitesse = random.uniform(25, 35)
+    else:
+        # Objet normal: vitesse modérée
+        vitesse = random.uniform(5, 25)
+    
+    # Taille (mètres)
+    if random.random() < DANGEROUS_PROBABILITY:
+        # Objet potentiellement dangereux: grande taille
+        taille = random.uniform(10, 20)
+    else:
+        # Objet normal: taille modérée
+        taille = random.uniform(1, 10)
+    
+    # Type d'objet
+    types = ["astéroïde", "comète", "météorite", "débris spatial"]
+    types_weights = [0.4, 0.3, 0.2, 0.1]  # Les astéroïdes sont plus communs
+    obj_type = random.choices(types, weights=types_weights, k=1)[0]
+    
+    return {
+        "id": obj_id,
+        "timestamp": timestamp,
+        "position": position,
+        "vitesse": vitesse,
+        "taille": taille,
+        "type": obj_type
+    }
+
+def delivery_report(err, msg):
+    """Callback appelé pour chaque message produit pour confirmer la livraison."""
+    if err is not None:
+        print(f"Erreur de livraison: {err}")
+    else:
+        print(f"Message envoyé à {msg.topic()} [{msg.partition()}] @ {msg.offset()}")
+
+def run_producer():
+    """Fonction principale qui génère et envoie des données à Kafka."""
+    producer = create_producer()
+    
+    print(f"Connexion au broker Kafka: {KAFKA_BROKER}")
+    print(f"Envoi de données au topic: {KAFKA_TOPIC}")
+    print("Génération de données d'objets célestes...")
     
     try:
-        producer = create_producer()
-        logger.info("Producteur connecté avec succès!")
-
         while True:
-            try:
-                # Générer et envoyer un objet
-                space_object = generate_space_object()
-                producer.send(TOPIC, value=space_object)
-                logger.info(f"Objet envoyé: {space_object['id']}")
-                
-                # Attendre entre 1 et 3 secondes
-                time.sleep(random.uniform(1, 3))
-                
-            except Exception as e:
-                logger.error(f"Erreur lors de l'envoi: {str(e)}")
-                time.sleep(5)  # Attendre avant de réessayer
+            # Générer un nombre aléatoire d'objets
+            num_objects = random.randint(MIN_OBJECTS, MAX_OBJECTS)
             
+            for _ in range(num_objects):
+                # Générer un objet céleste
+                obj = generate_object()
+                
+                # Convertir en JSON
+                value = json.dumps(obj)
+                
+                # Envoyer à Kafka
+                producer.produce(KAFKA_TOPIC, value.encode('utf-8'), callback=delivery_report)
+            
+            # Flush les messages
+            producer.flush()
+            
+            # Attendre l'intervalle de temps
+            time.sleep(GENERATION_INTERVAL)
+    
     except KeyboardInterrupt:
-        logger.info("Arrêt du producteur...")
+        print("Producteur arrêté par l'utilisateur")
     except Exception as e:
-        logger.error(f"Erreur fatale: {str(e)}")
+        print(f"Erreur dans le producteur: {e}")
     finally:
-        if 'producer' in locals():
-            producer.close()
+        # Assurer que tous les messages sont envoyés avant de terminer
+        producer.flush()
+        print("Producteur terminé")
 
 if __name__ == "__main__":
-    main() 
+    run_producer() 

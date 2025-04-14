@@ -38,8 +38,8 @@ function App() {
         // Tentative de récupération des données
         const objectsRes = await axios.get('http://localhost:5000/api/space-objects');
         setObjects(objectsRes.data);
-
-        const alertsRes = await axios.get('http://localhost:5000/alerts');
+  
+        const alertsRes = await axios.get('http://localhost:5000/api/alerts');
         setAlerts(alertsRes.data);
 
         setIsLoading(false);

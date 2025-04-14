@@ -109,7 +109,6 @@
 }
 
 .loading, .error-message {
-  /* Styles similaires à ObjectList.css */
   text-align: center;
   padding: 1rem;
   color: #aaa;
